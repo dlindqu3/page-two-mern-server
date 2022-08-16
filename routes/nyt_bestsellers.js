@@ -1,6 +1,7 @@
 const express = require('express'); 
 const axios = require('axios'); 
-require('dotenv').config()
+require('dotenv').config();
+const Bestseller = require('../models/bestsellerModel'); 
 
 const router = express.Router()
 
@@ -17,6 +18,25 @@ router.get('/category/:category_name', async (req, res) => {
     res.send(result.data)
   } catch (error) {
     console.log(error)
+  }
+})
+
+// post a bestseller to mongo db 
+// test in postman 
+router.post('/add-bestseller', async (req, res) => {
+  // console.log('req.body: ', req.body);
+  newObj = {
+    owner: req.body.owner, 
+    title: req.body.title, 
+    author: req.body.author, 
+    list: req.body.list
+  }
+  try {
+    const bestseller = await Bestseller.create(newObj)
+    res.status(200).json(bestseller)
+    console.log('item added to db')
+  } catch (error) {
+    res.status(400).json({error: error.message})
   }
 })
 

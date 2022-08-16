@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express'); 
 const mongoose = require('mongoose'); 
 const nyt_bestsellers_routes = require('./routes/nyt_bestsellers'); 
+const bodyParser = require('body-parser'); 
 
 const app = express(); 
 
@@ -10,6 +11,11 @@ app.use((req, res, next) => {
   next()
 })
 
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
 // routes
 app.use('/api/nyt-bestsellers', nyt_bestsellers_routes)
 
@@ -17,8 +23,8 @@ app.use('/api/nyt-bestsellers', nyt_bestsellers_routes)
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     app.listen(process.env.PORT, () => {
-      console.log(process.env.MONGO_URI)
-      console.log(`connected to mongoDB and listening on port ${process.env.PORT}`)
+      // console.log(process.env.MONGO_URI)
+      // console.log(`connected to mongoDB and listening on port ${process.env.PORT}`)
     })
   })
   .catch((error) => {

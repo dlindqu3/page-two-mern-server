@@ -1,6 +1,9 @@
 const mongoose = require('mongoose');
 
 // schema defines structure of a doc in db 
+// to chang a schema:
+    // added "notes" field to schema 
+    // 
 const Schema = mongoose.Schema
 const bestsellerSchema = new Schema({
   owner: {
@@ -17,7 +20,11 @@ const bestsellerSchema = new Schema({
   }, 
   list: {
     type: String, 
-    required: false 
+    required: true 
+  }, 
+  notes: {
+    type: String, 
+    required: false
   }
 })
 

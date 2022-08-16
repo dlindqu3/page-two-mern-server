@@ -29,7 +29,8 @@ router.post('/add-bestseller', async (req, res) => {
     owner: req.body.owner, 
     title: req.body.title, 
     author: req.body.author, 
-    list: req.body.list
+    list: req.body.list,
+    notes: req.body.notes
   }
   try {
     const bestseller = await Bestseller.create(newObj)

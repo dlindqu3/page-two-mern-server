@@ -1,6 +1,5 @@
 const Bestseller = require("../models/bestsellerModel");
-
-let nyt_key = process.env.NYT_API_KEY
+const mongoose = require('mongoose'); 
 
 // get all bestsellers in db 
 const getBestsellers = async(req, res) => {
@@ -9,9 +8,13 @@ const getBestsellers = async(req, res) => {
 }
 
 // get single bestseller in db 
-// fix** 
 const getBestseller = async(req, res) => {
-  const id = req.params.id; 
+  const id = req.params.id;
+  
+  if (!mongoose.Types.ObjectId.isValid(id)){
+    return res.status(404).json({error: 'item not found'})
+  }
+  
   const currentBestseller = await Bestseller.findById(id); 
   if (!currentBestseller){
     return res.status(404).json({error: 'bestseller not found'});
@@ -37,13 +40,39 @@ const createBestseller = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 // update a bestseller in db 
+const updateBestseller = async (req, res) => {
+  let id = req.params.id; 
+  if(!mongoose.Types.ObjectId.isValid(id)){
+    return res.status(404).json({error: 'No such item in database'})
+  }
+  const bestseller = await Bestseller.findOneAndUpdate({_id: id}, {
+    ...req.body
+  })
+  if(!bestseller){
+    return res.status(400).json({error: 'No such item in database'})
+  }
+  res.status(200).json(bestseller)
+}
 
 // delete a bestseller from db 
+const deleteBestseller = async (req, res) => {
+  let id = req.params.id; 
+  if(!mongoose.Types.ObjectId.isValid(id)){
+    return res.status(404).json({error: 'No such item in database'})
+  }
+  const bestseller = await Bestseller.findOneAndDelete({_id: id})
+  if (!bestseller){
+    return res.status(400).json({error: 'No such item in database'})
+  }
+  res.status(200).json(bestseller)
+}
 
 // get bestseller category/list names from nyt
 const getCategoryNames = async (req, res) => {
-  let base_url_two = 'https://api.nytimes.com/svc/books/v3/lists/names.json?api-key='
+  let nyt_key = process.env.NYT_API_KEY;
+  let base_url_two = 'https://api.nytimes.com/svc/books/v3/lists/names.json?api-key=';
   try {
     let full_url = base_url_two + nyt_key
     console.log('full url: ', full_url)
@@ -57,8 +86,9 @@ const getCategoryNames = async (req, res) => {
 // get current bestseller list by category from nyt 
 const getNewBestsellersByCategory = async (req, res) => {
   try {
-    let category_name = req.params.category_name
-    let url = `https://api.nytimes.com/svc/books/v3/lists/current/${category_name}.json?api-key=${process.env.NYT_API_KEY}`
+    let nyt_key = process.env.NYT_API_KEY; 
+    let category_name = req.params.category_name;
+    let url = `https://api.nytimes.com/svc/books/v3/lists/current/${category_name}.json?api-key=${nyt_key}`
     
     console.log('category_name: ', category_name)
     let result = await axios.get(url);
@@ -74,5 +104,7 @@ module.exports = {
   getBestseller, 
   getBestsellers, 
   getCategoryNames,
-  getNewBestsellersByCategory
+  getNewBestsellersByCategory, 
+  deleteBestseller, 
+  updateBestseller
 }
